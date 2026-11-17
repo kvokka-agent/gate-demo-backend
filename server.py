@@ -26,9 +26,13 @@ class GreetingHandler(BaseHTTPRequestHandler):
             self.send_api_error(404, "not found")
             return
 
-        name = parse_qs(request.query, encoding="utf-8", errors="strict").get(
-            "name", [""]
-        )[0]
+        try:
+            name = parse_qs(request.query, encoding="utf-8", errors="strict").get(
+                "name", [""]
+            )[0]
+        except UnicodeDecodeError:
+            self.send_api_error(400, "name must be valid UTF-8")
+            return
         if not name:
             self.send_api_error(400, "name is required")
             return
